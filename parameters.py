@@ -1,0 +1,24 @@
+INST_PING                   = 0x01
+INST_READ                   = 0x02
+INST_WRITE                  = 0x03
+INST_REG_WRITE              = 0x04
+INST_ACTION                 = 0x05
+INST_FACTORY_RESET          = 0x06
+INST_REBOOT                 = 0x08
+INST_CLEAR                  = 0x10
+INST_CONTROL_TABLE_BACKUP   = 0x20
+INST_STATUS                 = 0x55  # resonse packet
+INST_SYNC_READ              = 0x82
+INST_SYNC_WRITE             = 0x83
+INST_FAST_SYNC_READ         = 0x8A
+INST_BULK_READ              = 0x92
+INST_BILK_WRITE             = 0x93
+INST_FAST_BULK_READ         = 0x9A
+
+ERROR_RESULT_FAIL           = 0x01
+ERROR_INSTRUCTION           = 0x02
+ERROR_CRC                   = 0x03
+ERROR_DATA_RANGE            = 0x04
+ERROR_DATA_LENGTH           = 0x05
+ERROR_DATA_LIMIT            = 0x06
+ERROR_ACCESS                = 0x07
