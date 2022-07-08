@@ -17,7 +17,6 @@ from pigpio import pi, OUTPUT, INPUT, PUD_UP, PUD_DOWN, PUD_OFF
 from parameters import *
 
 VERSION     = 2.0
-BAUD_RATE   = 57600
 
 def crc16(data, length):
     crc_table = [
@@ -91,6 +90,29 @@ def generate_packet(id, inst, params=[], params_len=0):
 # Header3   = 0xFD
 # Reserved  = 0x00
 # Inst      = 0x55 (status)
-def decode_packet(packet):
-    pass
-
+def decode_packet(packet, verbose=False):
+    packet_wo_CRC = packet[:-2]
+    crc_accum = crc16(packet_wo_CRC, len(packet_wo_CRC))
+    CRC_L = crc_accum & 0xff
+    CRC_H = (crc_accum >> 8) & 0xff
+    if not ((CRC_L == packet[-2]) and (CRC_H == packet[-1])):
+        print("CRC ERROR")
+        return None
+    if not packet_wo_CRC[:4] == bytearray([0xff, 0xff, 0xfd, 0x00]):
+        print("Header ERROR")
+        return None
+    packet_wo_CRC_Header = packet_wo_CRC[4:]
+    if not packet_wo_CRC_Header[3] == 0x55:
+        print("Instruction of Status Packet must 0x55!!!")
+        return None
+    if not packet_wo_CRC_Header[4] == 0x00:
+        print(f"ERROR CODE: {packet_wo_CRC_Header[4]:02x}")
+        return packet_wo_CRC_Header[4]
+    packet_ID = packet_wo_CRC_Header[0]
+    data_length = packet_wo_CRC_Header[1] + (packet_wo_CRC_Header[2] << 8) - 4
+    data = packet_wo_CRC_Header[5:]
+    if verbose:
+        print(f"ID: {packet_ID}, len: {data_length}")
+        for i, d in enumerate(data):
+            print(f"parameter #{i}: {d:02x}")
+    return packet_ID, data, data_length
