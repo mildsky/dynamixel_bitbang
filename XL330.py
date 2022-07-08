@@ -79,12 +79,18 @@ def main():
     motor = xl330(1, 18, 23)
     motor.ping()
     motor.write(ADDR_LED, SIZE_LED, 1)
+    motor.write(ADDR_OP_MODE, SIZE_OP_MODE, 4)
     motor.write(ADDR_TORQ_ENA, SIZE_TORQ_ENA, 1)
-    T = 200
-    for i in range(T+1):
-        motor.write(ADDR_GOAL_POS, SIZE_GOAL_POS, 2048+1024*math.sin(2*i/T*math.pi))
-        time.sleep(0.01)
-    time.sleep(0.1)
+    # T = 200
+    # for i in range(T+1):
+    #     motor.write(ADDR_GOAL_POS, SIZE_GOAL_POS, 2048+1024*math.sin(2*i/T*math.pi))
+    #     time.sleep(0.01)
+    # time.sleep(0.1)
+    motor.write(ADDR_GOAL_POS, SIZE_GOAL_POS, 0)
+    time.sleep(3)
+    motor.write(ADDR_GOAL_POS, SIZE_GOAL_POS, 8196)
+    time.sleep(3)
+    
     motor.write(ADDR_TORQ_ENA, SIZE_TORQ_ENA, 0)
     motor.write(ADDR_LED, SIZE_LED, 0)
     data = motor.read(ADDR_PRESENT_TEMP, SIZE_PRESENT_TEMP)
