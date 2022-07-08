@@ -5,10 +5,25 @@ ADDR_LED = 65
 SIZE_LED = 1
 ADDR_STAT_RET_LEV = 68
 SIZE_STAT_RET_LEV = 1
+
 ADDR_REG_INST = 69
 SIZE_REG_INST = 1
+# Registered Instruction
+# if 1 -> Instruction registered
+# if 0 -> No instruction registerd
+
 ADDR_HW_ERR_STAT = 70
 SIZE_HW_ERR_STAT = 1
+# HW ERROR Status situations
+# Bit 7: 0
+# Bit 6: 0
+# Bit 5: Overload Error
+# Bit 4: Electrical Shock Error
+# Bit 3: 
+# Bit 2: Overheating Error
+# Bit 1: 0
+# Bit 0: Input Voltage Error
+
 ADDR_V_I_GAIN = 76
 SIZE_V_I_GAIN = 2
 ADDR_V_P_GAIN = 78
