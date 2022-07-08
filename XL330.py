@@ -1,6 +1,8 @@
 from DynamixelProtocol2 import *
 from XL330_EEPROM import *
 from XL330_RAM import *
+from utils import IntToNBytes, nBytesToInt
+import math
 
 class xl330:
     def __init__(self, id, outputPin, inputPin, baud = 57600):
@@ -15,20 +17,10 @@ class xl330:
             self.io.set_pull_up_down(self.InPin, 2) # 2 is internal pull up
             self.io.bb_serial_read_open(self.InPin, self.BAUD)
 
-    def ping(self):
-        rxPacket = self.sendRecievePacket(INST_PING)
-        id, data, data_len = decode_packet(rxPacket)
-        if not data_len == 3:
-            print("data length not 3")
-        print(f"ID: {id}")
-        print(f"Model#: {data[0]+(data[1]<<8)}")
-        print(f"firmware Ver.: {data[2]}")
-
-    def read(self):
-        pass
-
-    def write(self):
-        pass
+    def close(self):
+        if not self.InPin == None:
+            self.io.bb_serial_read_close(self.InPin)
+        self.io.stop()
 
     def sendRecievePacket(self, inst, params=[], params_len=0):
         self.io.wave_clear()
@@ -47,21 +39,57 @@ class xl330:
             return data[packet_len:]
         return None
 
-    def close(self):
+    def ping(self):
+        if self.InPin == None:
+            print("You Cannot Ping without Input")
+            return None, None, None
+        rxPacket = self.sendRecievePacket(INST_PING)
+        if not len(rxPacket) == 14:
+            print("No RX Packet recieved!!")
+            return None, None, None
+        id, data, data_len = decode_packet(rxPacket)
+        if not data_len == 3:
+            print("data length not 3")
+        print(f"ID: {id}")
+        modelNum = data[0]+(data[1]<<8)
+        print(f"Model#: {modelNum}")
+        print(f"firmware Ver.: {data[2]}")
+        return id, modelNum, data[2]
+
+    def read(self, addr, data_len):
         if not self.InPin == None:
-            self.io.bb_serial_read_close(self.InPin)
-        self.io.stop()
+            rxPacket = self.sendRecievePacket(INST_READ, IntToNBytes(addr, 2) + IntToNBytes(data_len, 2), 4)
+            if not len(rxPacket) >= 11+data_len:
+                print("No RX Packet recieved!!")
+                return bytearray(data_len)
+            return decode_packet(rxPacket)[1]
+        return bytearray(data_len)
+
+    def write(self, addr, data_len, data):
+        rxPacket = self.sendRecievePacket(INST_WRITE, IntToNBytes(addr, 2) + IntToNBytes(data, data_len), data_len+2)
+        return rxPacket
+
+    def reg_write(self):
+        pass
+
+    def action(self):
+        pass
 
 def main():
-    myDynamixel = xl330(1, 18, 23)
-    myDynamixel.ping()
+    motor = xl330(1, 18, 23)
+    motor.ping()
+    motor.write(ADDR_LED, SIZE_LED, 1)
+    motor.write(ADDR_TORQ_ENA, SIZE_TORQ_ENA, 1)
+    T = 20
+    for i in range(T+1):
+        motor.write(ADDR_GOAL_POS, SIZE_GOAL_POS, 2048+1024*math.sin(2*i/T*math.pi))
+        time.sleep(0.01)
     time.sleep(0.1)
-    myDynamixel.sendRecievePacket(INST_WRITE, [ADDR_LED, 0, 1], SIZE_LED+2)
-    time.sleep(1)
-    myDynamixel.sendRecievePacket(INST_WRITE, [ADDR_LED, 0, 0], SIZE_LED+2)
-    time.sleep(1)
-
-    myDynamixel.close()
+    motor.write(ADDR_TORQ_ENA, SIZE_TORQ_ENA, 0)
+    motor.write(ADDR_LED, SIZE_LED, 0)
+    data = motor.read(ADDR_PRESENT_TEMP, SIZE_PRESENT_TEMP)
+    print(f"current temperature: {nBytesToInt(data, 1)}°C")
+    motor.close()
     exit()
 
 if __name__ == "__main__":
