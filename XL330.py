@@ -16,7 +16,13 @@ class xl330:
             self.io.bb_serial_read_open(self.InPin, self.BAUD)
 
     def ping(self):
-        pass
+        rxPacket = self.sendRecievePacket(INST_PING)
+        id, data, data_len = decode_packet(rxPacket)
+        if not data_len == 3:
+            print("data length not 3")
+        print(f"ID: {id}")
+        print(f"Model#: {data[0]+(data[1]<<8)}")
+        print(f"firmware Ver.: {data[2]}")
 
     def read(self):
         pass
@@ -37,7 +43,7 @@ class xl330:
         time.sleep(0.05)
         if not self.InPin == None:
             count, data = self.io.bb_serial_read(self.InPin)
-            print(' '.join('%02x'%b for b in data[packet_len:]))
+            # print(' '.join('%02x'%b for b in data[packet_len:]))
             return data[packet_len:]
         return None
 
@@ -48,7 +54,7 @@ class xl330:
 
 def main():
     myDynamixel = xl330(1, 18, 23)
-    myDynamixel.sendRecievePacket(INST_PING)
+    myDynamixel.ping()
     time.sleep(0.1)
     myDynamixel.sendRecievePacket(INST_WRITE, [ADDR_LED, 0, 1], SIZE_LED+2)
     time.sleep(1)
