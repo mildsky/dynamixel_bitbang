@@ -5,7 +5,7 @@ from utils import IntToNBytes, nBytesToInt
 import math
 
 class xl330:
-    def __init__(self, id, outputPin, inputPin, baud = 57600):
+    def __init__(self, id, outputPin, inputPin=None, baud = 57600):
         self.ID = id
         self.io = pi()
         self.OutPin = outputPin
@@ -75,11 +75,19 @@ class xl330:
     def action(self):
         pass
 
+    def changeID(self, newID):
+        if newID > 253 or newID < 0:
+            print("You cannot assign ID out of range 0~253!!")
+            return None
+        rxPacket = self.sendRecievePacket(INST_WRITE, IntToNBytes(ADDR_ID, 2) + IntToNBytes(newID, SIZE_ID), SIZE_ID+2)
+        self.ID = newID
+        return rxPacket
+
 def main():
-    motor = xl330(1, 18, 23)
-    motor.ping()
+    motor = xl330(1, 18)
+    # motor.ping()
     motor.write(ADDR_LED, SIZE_LED, 1)
-    motor.write(ADDR_OP_MODE, SIZE_OP_MODE, 4)
+    motor.write(ADDR_OP_MODE, SIZE_OP_MODE, 3)
     motor.write(ADDR_TORQ_ENA, SIZE_TORQ_ENA, 1)
     # T = 200
     # for i in range(T+1):
@@ -87,14 +95,13 @@ def main():
     #     time.sleep(0.01)
     # time.sleep(0.1)
     motor.write(ADDR_GOAL_POS, SIZE_GOAL_POS, 0)
-    time.sleep(3)
-    motor.write(ADDR_GOAL_POS, SIZE_GOAL_POS, 8196)
-    time.sleep(3)
-    
+    time.sleep(1)
+    motor.write(ADDR_GOAL_POS, SIZE_GOAL_POS, 2048)
+    time.sleep(1)
     motor.write(ADDR_TORQ_ENA, SIZE_TORQ_ENA, 0)
     motor.write(ADDR_LED, SIZE_LED, 0)
-    data = motor.read(ADDR_PRESENT_TEMP, SIZE_PRESENT_TEMP)
-    print(f"current temperature: {nBytesToInt(data, 1)}°C")
+    # data = motor.read(ADDR_PRESENT_TEMP, SIZE_PRESENT_TEMP)
+    # print(f"current temperature: {nBytesToInt(data, 1)}°C")
     motor.close()
     exit()
 
