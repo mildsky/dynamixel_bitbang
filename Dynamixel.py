@@ -4,7 +4,7 @@ from XL330_RAM import *
 from utils import IntToNBytes, nBytesToInt
 import math
 
-class xl330:
+class dynamixel:
     def __init__(self, id, outputPin, inputPin=None, baud = 57600):
         self.ID = id
         self.io = pi()
@@ -75,7 +75,7 @@ class xl330:
     def action(self):
         pass
 
-    def changeID(self, newID):
+    def setID(self, newID):
         if newID > 253 or newID < 0:
             print("You cannot assign ID out of range 0~253!!")
             return None
@@ -83,8 +83,32 @@ class xl330:
         self.ID = newID
         return rxPacket
 
+    def setMode(self, mode:str):
+        modes = [
+            "current_ctrl",
+            "velocity_ctrl",
+            "Mode2",
+            "position_ctrl",
+            "extended_Position_ctrl",
+            "current_based_postion_ctrl",
+            "Mode6",
+            "Mode7",
+            "Mode8",
+            "Mode9",
+            "Mode10",
+            "Mode11",
+            "Mode12",
+            "Mode13",
+            "Mode14",
+            "Mode15",
+            "PWM_ctrl"]
+        return self.write(ADDR_OP_MODE, SIZE_OP_MODE, modes.index(mode))
+
+    def setGoal(self):
+        pass
+
 def main():
-    motor = xl330(1, 18)
+    motor = dynamixel(1, 18)
     # motor.ping()
     motor.write(ADDR_LED, SIZE_LED, 1)
     motor.write(ADDR_OP_MODE, SIZE_OP_MODE, 3)
