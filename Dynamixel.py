@@ -75,6 +75,8 @@ class dynamixel:
     def action(self):
         pass
 
+    # below code need some clever method to work with not-xl330 dynamixel
+    # ADDR_* and SIZE_* need replace with currently using dynamixel
     def setID(self, newID):
         if newID > 253 or newID < 0:
             print("You cannot assign ID out of range 0~253!!")
