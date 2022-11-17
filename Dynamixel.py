@@ -118,7 +118,30 @@ class dynamixel:
             "Mode14",
             "Mode15",
             "PWM_ctrl"]
+        if not mode in modes:
+            return None
         return self.write(ADDR_OP_MODE, SIZE_OP_MODE, modes.index(mode))
+
+    def ledOff(self):
+        return self.write(ADDR_LED, SIZE_LED, 0)
+
+    def ledOn(self):
+        return self.write(ADDR_LED, SIZE_LED, 1)
+
+    def torqueOff(self):
+        return self.write(ADDR_TORQ_ENA, SIZE_TORQ_ENA, 0)
+
+    def torqueOn(self):
+        return self.write(ADDR_TORQ_ENA, SIZE_TORQ_ENA, 1)
+
+    def setGoalCurrent(self, goal):
+        return self.write(ADDR_GOAL_CURRENT, SIZE_GOAL_CURRENT, goal)
+
+    def setGoalVel(self, goal):
+        return self.write(ADDR_GOAL_VEL, SIZE_GOAL_VEL, goal)
+
+    def setGoalPos(self, goal):
+        return self.write(ADDR_GOAL_POS, SIZE_GOAL_POS, goal)
 
     def setGoal(self):
         pass
